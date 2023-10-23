@@ -97,8 +97,8 @@ function App() {
             <span className="input-group-text" id="basic-addon1"> 🔍 </span>
           </div>
           <input onChange={(e)=>setText(e.target.value)}
-          type="text" className="form-control" placeholder="Username" 
-          aria-label="Username" aria-describedby="basic-addon1"/>
+          type="text" className="form-control" placeholder="Enter emoji name..." 
+          aria-label="Emojiname" aria-describedby="basic-addon1"/>
         </div>
       </div>
       {categories?.map((cat, index) => (
