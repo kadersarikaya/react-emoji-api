@@ -102,11 +102,12 @@ function App() {
         </div>
       </div>
       {categories?.map((cat, index) => (
-        <div key={index} className="btn-group">
-          {cat?.subCategories[2] && <button onClick={() => handleCategory(cat?.slug)} href="#" className="btn btn-info active" aria-current="page">
-            {cat?.slug}
-          </button>}
-        </div>
+        cat.subCategories[2] &&
+          <div key={index} className="btn-group">
+            { <button onClick={() => handleCategory(cat?.slug)} href="#" className="btn btn-info active" aria-current="page">
+              {cat?.slug}
+            </button>}
+          </div>
       ))}
       {isLoading ? <div className="spinner-border" role="status">
         <span className="visually-hidden">Loading...</span>
