@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import copy from 'copy-to-clipboard';
 
 function App() {
-  const [text, setText] = useState("")
   const [category, setCategory] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [emojis, setEmojis] = useState(null)
@@ -15,20 +14,25 @@ function App() {
   const categoryEndpoint = `https://emoji-api.com/categories/${category}?access_key=efda08957690375e9795219f15f995113ac3aae8`
   const [selectCat, setSelectedCat] = useState(false);
   const [copiedStates, setCopiedStates] = useState({});
-
+  const [inputText, setInputText] = useState("");
+  const [filteredEmojis, setFilteredEmojis] = useState([]);
   
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
     try {
-      const emojisResponse = await fetch(emojisEndpoint);
-      const emojisData = await emojisResponse.json();
+      const [emojisResponse, categoriesResponse] = await Promise.all([
+        fetch(emojisEndpoint),
+        fetch(categoriesEndpoint)
+      ]);
+
+      const [emojisData, categoriesData] = await Promise.all([
+        emojisResponse.json(),
+        categoriesResponse.json()
+      ]);
+
       setEmojis(emojisData);
-
-      const categoriesResponse = await fetch(categoriesEndpoint);
-      const categoriesData = await categoriesResponse.json();
       setCategories(categoriesData);
-
       setIsLoading(false);
     }
     catch(err) {
@@ -38,7 +42,6 @@ function App() {
    }
     fetchData();
   }, [])
-  
 
   useEffect(() => {
     async function getEmojisInCat() {
@@ -56,16 +59,22 @@ function App() {
     getEmojisInCat();
 
   }, [])
+
+  useEffect(()=> {
+    const filteredArr = emojis?.filter(
+      (emoji) =>
+        emoji?.slug.slice(5).replaceAll('-', ' ').includes(inputText.toLowerCase())
+        && (!selectCat || emoji.group === category)
+    );
+    setFilteredEmojis(filteredArr);
+  }, [emojis, inputText, category, selectCat])
   
   const handleCategory = (cat) => {
     setCategory(cat)
     setSelectedCat(true);
   } 
 
-  const filteredArr = emojis?.filter(
-    (emoji) =>
-      emoji?.slug.slice(5).replaceAll('-', ' ').includes(text) && (!selectCat || emoji.group === category)
-  );
+  
 
   const handleCopy = (character, index) => {
     copy(character);
@@ -96,9 +105,9 @@ function App() {
           <div className="input-group-prepend">
             <span className="input-group-text" id="basic-addon1"> 🔍 </span>
           </div>
-          <input onChange={(e)=>setText(e.target.value)}
+          <input onChange={(e)=>setInputText(e.target.value)}
           type="text" className="form-control" placeholder="Enter emoji name..." 
-          aria-label="Emojiname" aria-describedby="basic-addon1"/>
+          aria-label="EmojiName" aria-describedby="basic-addon1"/>
         </div>
       </div>
       {categories?.map((cat, index) => (
@@ -113,7 +122,7 @@ function App() {
         <span className="visually-hidden">Loading...</span>
       </div> :(
       <div className="row">
-        {filteredArr?.map((singleEmoji, index) => (
+        {filteredEmojis?.map((singleEmoji, index) => (
           <div key={index} className="col-lg-3 col-md-4 col-12 mt-3">
             <div className="data">
               <div className="card">
